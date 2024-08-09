@@ -172,10 +172,10 @@ M16 <-joint(formSurv = list(inla.surv(time = years, event = death) ~ drug,
              c("CV", ""), c("CV", "CV"), c("CV", "CV"), c("CV", "")),
             control=list(int.strategy="eb"))
 summary(M16)
-
 # 2000 seconds on laptop with 1 thread
 
-browseVignette("INLAjoint")
+# more examples / details
+browseVignettes("INLAjoint")
 
 
 
