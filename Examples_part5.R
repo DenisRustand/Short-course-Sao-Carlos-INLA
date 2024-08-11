@@ -105,12 +105,17 @@ M1_$.args$data
 
 
 # Joint model for longitudinal and competing risk
-M6 <- joint(formSurv = list(inla.surv(time = years, event = death)  ~ sex + drug,
+M2 <- joint(formSurv = list(inla.surv(time = years, event = death)  ~ sex + drug,
                             inla.surv(time = years, event = trans) ~ edema * sex),
             formLong = serBilir ~ year * (drug + sex) + (1+year|id),
             dataLong = Longi, dataSurv=Surv, id = "id", timeVar = "year", family = "lognormal",
             basRisk = c("rw1", "rw1"), assoc = c("SRE", "SRE_ind"), control=list(int.strategy="eb", safemode=F))
-summary(M6)
+summary(M2)
+
+
+
+
+
 
 
 
@@ -123,18 +128,24 @@ E12 <- inla.surv(time = SurvMS[[1]]$Tstop, event = SurvMS[[1]]$status) # transit
 E13 <- inla.surv(time = SurvMS[[2]]$Tstop, event = SurvMS[[2]]$status) # transition 1->3
 E23 <- inla.surv(time = SurvMS[[3]]$Tstop, truncation=SurvMS[[3]]$Tstart,
                  event =SurvMS[[3]]$status) # transition 2->3
-M7 <- joint(formSurv=list(E12 ~ X, E13 ~ X, E23 ~ X),
+M3 <- joint(formSurv=list(E12 ~ X, E13 ~ X, E23 ~ X),
             formLong=list(y ~ time + X + (1+time|id)),
             basRisk = c("rw2", "rw1", "exponentialsurv"), timeVar = "time",
             assoc = list(c("CV", "CV", "CV")), id="id",
             dataSurv = SurvMS, dataLong = LongMS,
             cutpoints=seq(0, max(SurvMS[[3]]$Tstop), len=15))
-summary(M7)
+summary(M3)
+
+
+
+
+
+
 
 
 
 # Joint model for 3 longitudinal and competing risk
-M8 <- joint(formLong = list(serBilir ~ year * drug + sex + (1|id),
+M4 <- joint(formLong = list(serBilir ~ year * drug + sex + (1|id),
                             platelets ~ year + f1(year) + drug + sex + (1|id),
                             albumin ~ year + f1(year) + f2(year) + drug + (1|id)),
             formSurv = list(inla.surv(time = years, event = death) ~ drug,
@@ -143,7 +154,13 @@ M8 <- joint(formLong = list(serBilir ~ year * drug + sex + (1|id),
             family = c("lognormal", "poisson", "gaussian"), basRisk = c("rw1", "rw1"),
             assoc = list(c("CV", "CV"), c("SRE", ""), c("CV_CS", "CS")),
             control=list(int.strategy="eb"))
-summary(M8)
+summary(M4)
+
+
+
+
+
+
 
 
 
@@ -156,7 +173,7 @@ f2 <- function(x) predict(Nsplines, x)[,2]
 f3 <- function(x) predict(Nsplines, x)[,3]
 # inla.setOption(num.threads="1:1") # in case of limited random access memory! => slower as it does not uses parallel computations
 
-M16 <-joint(formSurv = list(inla.surv(time = years, event = death) ~ drug,
+M5 <- joint(formSurv = list(inla.surv(time = years, event = death) ~ drug,
                             inla.surv(time = years, event = trans) ~ drug),
             formLong = list(serBilir ~ (1 + f1(year) + f2(year) + f3(year)) * drug +
                               (1 + f1(year) + f2(year) + f3(year) | id),
@@ -171,7 +188,7 @@ M16 <-joint(formSurv = list(inla.surv(time = years, event = death) ~ drug,
             basRisk = c("rw2", "rw1"), NbasRisk = 15, assoc = list(c("CV_CS", "CV"),
              c("CV", ""), c("CV", "CV"), c("CV", "CV"), c("CV", "")),
             control=list(int.strategy="eb"))
-summary(M16)
+summary(M5)
 # 2000 seconds on laptop with 1 thread
 
 # more examples / details

@@ -47,6 +47,15 @@ plot(M1.wei_2)
 # => Can be formulated as AFT!
 
 
+
+
+
+
+
+
+
+
+
 # smooth semiparametric baseline risk (random walk order 2)
 M1_3 <- joint(formSurv = inla.surv(years, death) ~ drug + sex,
               dataSurv = SurvData, basRisk="rw2", NbasRisk = 30)
@@ -77,7 +86,13 @@ lines(P2$time, P2$Surv_quant0.5, col=2)
 lines(P2$time, P2$Surv_quant0.025, col=2, lty=2)
 lines(P2$time, P2$Surv_quant0.975, col=2, lty=2)
 legend("topright", c("Female", "Male"), lty=c(1,1), col=c(1,2))
-summary(SurvData) # more data om females => less uncertainty
+summary(SurvData) # more data on females => less uncertainty
+
+
+
+
+
+
 
 
 
@@ -118,6 +133,11 @@ ggplot(P2$PredS, aes(x=time, y=CIF_quant0.5, group=id)) +
 
 
 
+
+
+
+
+
 ## Model 3: Multi-state model (e.g., illness-death)
 data(SurvMS) # package INLAjoint
 E12 <- inla.surv(time = SurvMS[[1]]$Tstop, event = SurvMS[[1]]$status) # transition 1->2
@@ -129,6 +149,11 @@ M3 <- joint(formSurv=list(E12 ~ X, E13 ~ X, E23 ~ X),
             basRisk = c("rw2", "rw1", "exponentialsurv"),
             dataSurv = SurvMS)
 summary(M3)
+
+
+
+
+
 
 
 
@@ -161,6 +186,11 @@ summary(M4, hr=T)
 
 
 
+
+
+
+
+
 ## Model 5: shared frailty model for recurrent events
 # data(readmission) # package frailtypack
 # ?readmission
@@ -170,6 +200,11 @@ summary(M5)
 summary(M5, hr=T)
 # This suggests that females are associated with a 30\% [12\%, 46\%] reduced susceptibility to rehospitalization
 # when accounting for unobserved or latent individual-specific factors captured by the frailty term.
+
+
+
+
+
 
 
 

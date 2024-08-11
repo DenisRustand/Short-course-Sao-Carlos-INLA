@@ -93,6 +93,14 @@ summary(JointM_2, sdcor=TRUE)
 
 
 
+
+
+
+
+
+
+
+
 # different parameterizations
 JointM_SRE_ind <- joint(formLong = L1 ~ time + (1+time|id),
                         formSurv = inla.surv(deathTimes, d) ~ 1, basRisk = "rw1",

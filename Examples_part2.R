@@ -13,10 +13,22 @@ M1 <- joint(formLong = serBilir ~ year + drug  +  (1 + year|id),
 summary(M1)
 summary(M1, sdcor=TRUE)
 inla.priors.used(M1)
+cat(capture.output(inla.priors.used(M1))[1:22], sep = "\n") # fixed effects
 plot(M1)
 plot(M1, sdcor=T)
 
 plot(M1, priors=TRUE, sdcor=TRUE)$Covariances
+
+# change priors
+M1_2 <- joint(formLong = serBilir ~ year + drug  +  (1 + year|id),
+            dataLong = LongData, id = "id", timeVar = "year",
+            family = "lognormal",
+            control=list(priorFixed=list(mean=0, prec=0.1, mean.intercept=0, prec.intercept=0.1),
+                         priorRandom=list(r=10, R=1)))
+summary(M1_2)
+cat(capture.output(inla.priors.used(M1_2))[1:22], sep = "\n")
+
+
 
 
 
