@@ -30,6 +30,9 @@ with(Leuk,
             col = cens + 1,
             cex = 0.5 + log(time)))
 
+plot(nwEngland)
+with(Leuk,
+     points(xcoord, ycoord, pch = 19, cex = 0.5))
 
 ## plot the Kaplan-Mayer estimator 
 km <- survfit(Surv(time, cens) ~ sex, Leuk) 
@@ -255,10 +258,11 @@ cph.res <- inla(
     E = data.expanded$E
 )
 
+cph.res$summary.hy
 
 ## fixed effect comparison
 list(
-    surv = coef(summary(m0))[, c(1,3)], 
+    surv = coef(summary(fit0))[, c(1,3)], 
     r0 = cph.inla$summary.fixed[-1, 1:2], 
     r1 = cph.res$summary.fixed[-1, 1:2]
 )
