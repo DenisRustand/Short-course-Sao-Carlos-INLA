@@ -17,7 +17,6 @@ cat(capture.output(inla.priors.used(M1))[1:22], sep = "\n") # fixed effects
 plot(M1)
 plot(M1, sdcor=T)
 
-plot(M1, priors=TRUE, sdcor=TRUE)$Covariances
 
 # change priors
 M1_2 <- joint(formLong = serBilir ~ year + drug  +  (1 + year|id),
@@ -29,8 +28,23 @@ summary(M1_2)
 cat(capture.output(inla.priors.used(M1_2))[1:22], sep = "\n")
 
 
+plot(M1, priors=TRUE, sdcor=TRUE)$Covariances
 
 
+# random effects posteriors
+plot(LongData[LongData$id==2, "year"], LongData[LongData$id==2, "serBilir"],
+     type="p", pch=19, ylim=c(0,10), xlim=c(0, 9))
+points(LongData[LongData$id==4, "year"], LongData[LongData$id==4, "serBilir"],
+       pch=19, col=2)
+
+int_12 <- M1$summary.random$IDIntercept_L1$mean[c(2,4)] # random intercepts
+slo_12 <- M1$summary.random$IDyear_L1$mean[c(314,316)] # random slopes
+FE <- M1$summary.fixed$mean # fixed effects
+tp <- seq(0,9,len=100)
+ind_1 <- FE[1] + int_12[1] + (FE[2]+slo_12[1])*tp + FE[3]
+ind_2 <- FE[1] + int_12[2] + (FE[2]+slo_12[2])*tp + FE[3]
+lines(tp, exp(ind_1))
+lines(tp, exp(ind_2), col=2)
 
 
 

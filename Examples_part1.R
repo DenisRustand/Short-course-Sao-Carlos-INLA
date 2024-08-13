@@ -218,12 +218,12 @@ M6 <- joint(formSurv=list(inla.surv(t.stop, event) ~ sex + (1|id), # risk of reh
              basRisk=c("rw2", "exponentialsurv"), assocSurv=TRUE,
              dataSurv = list(readmission,terminalData))
 summary(M6)
+M6$summary.random$IDIntercept_S1
 
+readmission[readmission$id%in%c(1, 15, 17),]
+terminalData[terminalData$id%in%c(1, 15, 17),]
 
-
-
-
-
+M6$summary.random$IDIntercept_S1$mean[c(1,15, 17)]
 
 
 
