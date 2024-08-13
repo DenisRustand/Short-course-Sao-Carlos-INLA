@@ -13,7 +13,6 @@ library(gridExtra)
 
 ## Leukemia dataset 
 data(Leuk)
-ls()
 
 ## Set survival time as year
 Leuk$time <- Leuk$time / 365.25
@@ -22,8 +21,6 @@ Leuk$time <- Leuk$time / 365.25
 
 ## Data summary
 round(sapply(Leuk[, c(1, 2, 5:8)], summary), 2)
-
-str(Leuk)
 
 ## a visualization of the data locations and boundary
 plot(nwEngland)
@@ -56,7 +53,7 @@ fit0 <- inla(
     family = "weibullsurv",
     data = Leuk)
 
-round(fit0$summary.fixed, 2)
+fit0$summary.fixed
 fit0$summary.hyperpar
 
 ### SPDE model setup
@@ -64,15 +61,10 @@ fit0$summary.hyperpar
 ## 1: build a mesh: for u(s_0), s_0 are mesh nodes
 
 ## not a very good one for this problem:
-bb <- matrix(st_bbox(nwEngland),2)
-bb
-apply(bb, 1, diff)
 mesh0 <- fm_mesh_2d(
     nwEngland, ## where
     max.edge = c(0.05, 0.2) ## (max) triangle sizes
 )
-
-mesh0$n
 
 ## show it
 plot(mesh0, asp = 1)
@@ -93,7 +85,6 @@ mesh <- fm_mesh_2d(
     boundary = list(bnd1, bnd2),
     max.edge = c(0.05, 0.2),
     cutoff = 0.02)
-mesh$n
 
 ## visualize it
 plot(mesh)
@@ -106,7 +97,6 @@ data.proj <- fm_evaluator(
                 Leuk$ycoord)
 )
 str(data.proj)
-dim(data.proj$proj$A)
 
 ## 3. build the SPDE model object 
 spde <- inla.spde2.pcmatern(
@@ -133,15 +123,12 @@ fit1 <- inla(
     data = Leuk
 )
 
-fit1$cpu.used
-
 fit1$summary.fix
 fit1$summary.hyperpar
 
 ## build a projector for a grid
 (bbnw <- bbox(nwEngland))
 r0 <- diff(range(bbnw[1, ])) / diff(range(bbnw[2, ]))
-r0
 grid.proj <- fm_evaluator(
     mesh = mesh,
     xlmim = bbnw[1, ], 
@@ -185,13 +172,18 @@ xyz <- data.frame(
 
 gg0 <- ggplot() + theme_minimal() 
 
+nwEngland_geom <- list()
+for (i in 1:length(nwEngland@polygons[[1]]@Polygons)){
+  nwEngland_geom <- c(nwEngland_geom, list(nwEngland@polygons[[1]]@Polygons[[i]]@coords))
+  
+}
+
 gg.m <- gg0 +
     geom_contour_filled(
         data = xyz, 
         aes(x = x, y = y, z = z)) + 
-    geom_sf(data = st_as_sf(nwEngland),
-            color = 'black',
-            fill = 'transparent') 
+        geom_sf(data = st_as_sf(st_sfc(st_polygon(nwEngland_geom))),
+          fill = 'transparent', lwd = 0.3, col = "black") 
 gg.m
 
 xyz$sd <- as.vector(
@@ -206,8 +198,8 @@ gg.sd <- gg0 +
     geom_contour_filled(
         data = xyz, 
         aes(x = x, y = y, z = sd)) + 
-    geom_sf(data = st_as_sf(nwEngland),
-            fill = 'transparent') 
+  geom_sf(data = st_as_sf(st_sfc(st_polygon(nwEngland_geom))),
+          fill = 'transparent', lwd = 0.3, col = "black") 
 
 ## visualize the spatial effect
 grid.arrange(
@@ -216,7 +208,7 @@ grid.arrange(
     nrow = 1
 )
     
-dim(Leuk)
+
 
 ## Survival case 2:
 cph.fit <- coxph(
@@ -263,9 +255,10 @@ cph.res <- inla(
     E = data.expanded$E
 )
 
+
 ## fixed effect comparison
 list(
-    surv = coef(summary(cph.fit))[, c(1,3)], 
+    surv = coef(summary(m0))[, c(1,3)], 
     r0 = cph.inla$summary.fixed[-1, 1:2], 
     r1 = cph.res$summary.fixed[-1, 1:2]
 )
